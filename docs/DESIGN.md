@@ -104,7 +104,7 @@ stateDiagram-v2
 外部システムは GitHub REST API のみ。詳細は GITHUB_API.md を参照し、本書は利用範囲の一覧を示す。
 
 | 用途 | エンドポイント | 主な入力 | 主な出力 |
-|---|---|---|---|---|
+| --- | --- | --- | --- |
 | 検索 | `GET /search/repositories` | `q`, `sort`, `order`, `page`, `per_page` | `total_count`, `items[]` |
 | 詳細取得 | `GET /repos/{owner}/{repo}` | `owner`, `repo` | リポジトリ詳細（`subscribers_count` 含む） |
 
