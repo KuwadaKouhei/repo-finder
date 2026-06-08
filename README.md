@@ -18,6 +18,7 @@
 ### AIが行うタスク
 
 - 要件定義の提案
+- Mermaid図の作成
 - Github APIの仕様調査(/docs/GITHUB_API.md の作成)
 - Next.js v16の設計思想の調査
 - コードの実装
