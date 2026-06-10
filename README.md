@@ -1,4 +1,4 @@
-# github-searcher
+# repo-finder
 
 ## AI利用ポイント
 
