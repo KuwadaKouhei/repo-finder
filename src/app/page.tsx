@@ -2,6 +2,7 @@ import { searchRepositories } from "@/lib/github/client";
 import { RepositoryList } from "@/features/repository-search/components/repository-list";
 import { SearchBox } from "@/features/repository-search/components/search-box";
 import { Pagination } from "@/features/repository-search/components/pagination";
+import { SearchResults } from "@/features/repository-search/components/search-results";
 
 type Props = {
   searchParams: Promise<{ q?: string; page?: string }>;
@@ -26,18 +27,5 @@ export default async function SearchPage({ searchParams }: Props) {
         )}
       </div>
     </main>
-  );
-}
-
-async function SearchResults({ query, page }: { query: string; page: number }) {
-  const result = await searchRepositories({ q: query, page });
-  return (
-    <>
-      <p className="mb-4 text-sm text-muted-foreground">
-        {result.totalCount.toLocaleString()} 件
-      </p>
-      <RepositoryList repositories={result.items} />
-      <Pagination currentPage={page} totalCount={result.totalCount} />
-    </>
   );
 }
