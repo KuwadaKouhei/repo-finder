@@ -18,7 +18,7 @@
 src/
   app/                          # ルーティング/レイアウト（Next規約）。薄く保つ
     layout.tsx                  # 全体骨格＋ThemeProvider
-    page.tsx                    # 検索画面（featureのorganismを組む・RSC）
+    page.tsx                    # 検索画面（featureのUIを組む・RSC）
     loading.tsx
     error.tsx                   # Client Component
     repositories/
@@ -27,42 +27,61 @@ src/
           page.tsx              # 詳細画面（RSC）
           loading.tsx
           not-found.tsx
-  features/                     # 機能単位で凝集（変更が1フォルダに収まる）
+  features/                     # ★ 機能単位で凝集（変更が1フォルダに収まる）
     repository-search/
       components/
         search-box.tsx          # client（submit方式）
+        search-box.test.tsx
         sort-control.tsx        # client
+        sort-control.test.tsx
         view-toggle.tsx         # client（リスト/グリッド切替）
+        view-toggle.test.tsx
         pagination.tsx          # client
-        results-header.tsx      # client（件数＋sort＋view＋theme を束ねる）
-        repository-list.tsx     # 一覧（RSCから渡されたデータを描画）
+        pagination.test.tsx
+        results-header.tsx      # client（件数＋sort＋view＋theme を束ねる）※束ねるだけ・単体テストなし
+        repository-list.tsx     # 一覧（renderされたデータを並べる）※mapのみ・単体テストなし
         repository-card.tsx     # 表示のみ
-        empty-state.tsx
-      __tests__/                # この機能のテストをコロケーション
+        repository-card.test.tsx
+        search-results.tsx      # RSC（検索API実行→一覧描画。結合テストの入口）
+        empty-state.tsx         # 静的表示・単体テストなし
+      search-flow.test.tsx      # ③結合: 部品をまたぐテストは機能フォルダ直下
     repository-detail/
       components/
         repository-detail.tsx
+        repository-detail.test.tsx
         stat-badge.tsx
+        stat-badge.test.tsx
         external-link.tsx
-      __tests__/
+        external-link.test.tsx  # rel属性（セキュリティの契約）を検証
+      detail-flow.test.tsx      # ③結合: 詳細描画（7項目・a11y）
   components/                   # 複数機能で共有する汎用UIのみ
     ui/                         # shadcn/ui（コピーして所有・改変）
     theme/
       theme-provider.tsx        # next-themes のラッパ（layoutで使用）
       theme-toggle.tsx          # client（ダーク/ライト切替）
+      theme-toggle.test.tsx     # 任意（テーマ属性の切替・localStorage保持）
   domain/                       # ドメイン層・中心（UI設計思想の対象外）
     repository.ts               # ドメイン型（Nextに非依存）
   lib/                          # インフラ層（UI設計思想の対象外）
+    format.ts                   # 数値compact表記
+    format.test.ts
+    utils.ts                    # shadcn生成（cn）
     github/
       client.ts                 # fetchラッパ（infra・トークン付与・エラー変換）
+      client.test.ts
       adapters.ts               # ACL: raw → domain（純粋関数）
+      adapters.test.ts
       types.ts                  # GitHub生レスポンス型
       errors.ts                 # 型付きエラー
   hooks/                        # 任意: 複数機能で共有する横断ロジック
-  test/
+  test/                         # テスト基盤（横断）
     setup.ts
     msw/{handlers.ts, server.ts}
+e2e/                            # ④E2E（Playwright・導入時）
+  happy-path.spec.ts            # 検索→結果→詳細→7項目
 ```
+
+**テストを書かないファイル（意図的）**: `results-header`（束ねるだけ）・`repository-list`（mapのみ）・`empty-state`（静的表示）は、②の保証対象「UIの責務」が薄いため単体テストを書かず、③結合テストの通過点としてカバーする（カバレッジを目的にしない・TEST_PHILOSOPHY.md §6）。`errors.ts`・`types.ts`・`domain/repository.ts` は型/定義のみのためテスト対象外（静的解析が保証）。
 
 **配置の判断基準**:
 
@@ -73,9 +92,20 @@ src/
 | `components/theme/` | アプリ全体で使うテーマ関連 |
 | `domain/` `lib/` | UI 層の外（ドメイン型・インフラ・ACL） |
 
+**テストファイルの配置（同階層方式）**:
+
+| テストの種類 | 置き場所 | 例 |
+| --- | --- | --- |
+| 対象が明確（①ユニット・②コンポーネント） | **対象ファイルの真隣**（`*.test.ts(x)`） | `repository-card.test.tsx` |
+| 部品をまたぐ（③結合） | 機能フォルダ直下 | `features/repository-search/search-flow.test.tsx` |
+| テスト基盤（setup・MSW雛形） | `src/test/` | `src/test/msw/server.ts` |
+| ④E2E | 専用フォルダ（導入時に `e2e/`） | `e2e/happy-path.spec.ts` |
+
+- 同階層を選ぶ理由: **テストの有無が一目で分かり、テストのし忘れを防げる**（テストが無い部品は隣が空いている）。対象のリネーム・削除時にテストが視界に入り、孤児テストを生まない。テストを仕様書として実装とセットで読める（TEST_PHILOSOPHY.md §9）。
+- `__tests__/` フォルダへの集約は採用しない（`components/` の一覧性は上がるが、テスト有無の可視性と対応関係の維持を優先）。lib層・features層で配置規則を1つに統一する。
 - **原則1（コロケーション）**: 変更は機能単位で起きる。機能に固有のものは機能フォルダに集約し、変更が1フォルダに収まるようにする。
 - **原則2（共有は引き上げ）**: 2つ以上の機能で使うものだけ `components/` へ上げる。最初から共通化しない（必要になってから）。
-- **原則3（合成）**: 小さく単純な部品を組み合わせて作る（React/shadcn の合成思想）。粒度の分類フォルダ（atoms/molecules等）は作らない。
+- **原則3（合成）**: 小さく単純な部品を組み合わせて作る（React/shadcn の合成思想）。
 - **種別**: 対話が必要な葉にのみ `"use client"`。データ取得は `app/` の RSC が行い、`features` の表示部品へ props で渡す（UI層はAPIを直接叩かない）。
 
 ### 1.2 依存方向
