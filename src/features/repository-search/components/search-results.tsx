@@ -1,5 +1,5 @@
 import { searchRepositories } from "@/lib/github/client";
-import { RepositoryList } from "./repository-list";
+import { ResultsView } from "./results-view";
 import { Pagination } from "./pagination";
 import { SortControl } from "./sort-control";
 
@@ -32,13 +32,13 @@ export async function SearchResults({ query, page, sort, order }: Props) {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
           {result.totalCount.toLocaleString()} 件
         </p>
         <SortControl />
       </div>
-      <RepositoryList repositories={result.items} />
+      <ResultsView repositories={result.items} totalCount={result.totalCount} />
       <Pagination currentPage={page} totalCount={result.totalCount} />
     </>
   );

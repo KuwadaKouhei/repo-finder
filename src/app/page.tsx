@@ -1,5 +1,4 @@
 import { SearchBox } from "@/features/repository-search/components/search-box";
-import { SortControl } from "@/features/repository-search/components/sort-control";
 import { SearchResults } from "@/features/repository-search/components/search-results";
 
 type Props = {

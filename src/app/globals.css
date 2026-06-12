@@ -132,3 +132,30 @@ input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
 }
+
+/* --- カード出現アニメーション（モックの floatIn / stagger 準拠） --- */
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-float-in {
+  opacity: 0;
+  /* 遅延中のチラ見えを防ぐ（animation-fill-mode と併用） */
+  animation: float-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--stagger-index, 0) * 0.045s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-in {
+    opacity: 1;
+    animation: none;
+  }
+}

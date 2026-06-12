@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { SearchResults } from "./components/search-results";
@@ -11,7 +12,10 @@ vi.mock("next/navigation", () => ({
 
 const server = setupServer();
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  localStorage.clear();
+});
 afterAll(() => server.close());
 
 const rawRepo = {
@@ -23,24 +27,21 @@ const rawRepo = {
   forks_count: 3, open_issues_count: 4,
 };
 
+const respondWith = (items: object[], total = items.length) =>
+  http.get("https://api.github.com/search/repositories", () =>
+    HttpResponse.json({ total_count: total, incomplete_results: false, items })
+  );
+
 describe("検索フロー（結合）", () => {
   it("検索すると一覧が表示される（API→アダプタ→描画が繋がる）", async () => {
-    server.use(
-      http.get("https://api.github.com/search/repositories", () =>
-        HttpResponse.json({ total_count: 1, incomplete_results: false, items: [rawRepo] })
-      )
-    );
+    server.use(respondWith([rawRepo]));
     render(await SearchResults({ query: "react", page: 1 }));
     expect(screen.getByText("facebook/react")).toBeInTheDocument();
     expect(screen.getByText(/1\s*件/)).toBeInTheDocument();
   });
 
   it("0件のとき件数 0 を表示する", async () => {
-    server.use(
-      http.get("https://api.github.com/search/repositories", () =>
-        HttpResponse.json({ total_count: 0, incomplete_results: false, items: [] })
-      )
-    );
+    server.use(respondWith([]));
     render(await SearchResults({ query: "zzz", page: 1 }));
     expect(screen.getByText(/0\s*件/)).toBeInTheDocument();
   });
@@ -69,5 +70,16 @@ describe("検索フロー（結合）", () => {
     );
     render(await SearchResults({ query: "react", page: 1, sort: "evil" }));
     expect(new URL(capturedUrl).searchParams.get("sort")).toBeNull();
+  });
+
+  it("表示切替トグルで grid レイアウトに切り替わり、localStorage に保存される", async () => {
+    server.use(respondWith([rawRepo]));
+    const user = userEvent.setup();
+    render(await SearchResults({ query: "react", page: 1 }));
+
+    await user.click(screen.getByRole("radio", { name: "グリッド表示" }));
+
+    expect(screen.getByRole("list").className).toContain("grid");
+    expect(localStorage.getItem("repo-finder:view")).toBe("grid");
   });
 });

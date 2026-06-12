@@ -172,7 +172,11 @@ flowchart TD
 ### 2.4 ViewToggle（リスト/グリッド切替）
 
 - 役割: 一覧の表示形式を切替（要件 §3.2）。
-- 状態の置き場所: **URL `?view=list|grid`**（リロード・共有で再現。URL-as-stateと一貫）。既定はリスト。
+- 状態の置き場所: **URL `?view=list|grid`**（リロード・共有で再現。URL-as-stateと一貫）。既定はリスト（URLに載せない）。
+- **view の読み取りはクライアント**: `RepositoryList`（Client Component）が `useSearchParams` で直接読む。サーバー（SearchResults）は view を受け取らない。
+  - 理由: view は取得データに影響しない純粋な見た目の状態。サーバーで読むと view 変更のたびに検索フェッチの再実行を巻き込む。クライアントで読めば URL 同期（共有・リロード再現）を保ったまま、切替はクライアント内の再レンダリングだけで完結する。
+  - 線引き: **取得に影響するもの（q/sort/order/page）はサーバーが読み、見た目だけのもの（view）はクライアントが読む**。
+  - 不正値（`?view=evil` 等）は RepositoryList 内で list に落とす。
 - 補足: 表示形式の違いは**レイアウトのみ**。`RepositoryList` がコンテナのCSS（リスト/グリッド）を切替、`RepositoryCard` は表示専用でレイアウト非依存。
 
 ### 2.5 ThemeToggle（ダーク/ライト切替）
