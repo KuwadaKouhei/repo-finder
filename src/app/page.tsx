@@ -1,5 +1,6 @@
 import { SearchBox } from "@/features/repository-search/components/search-box";
 import { SearchResults } from "@/features/repository-search/components/search-results";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 type Props = {
   searchParams: Promise<{
@@ -17,7 +18,10 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-4 text-xl font-bold">GitHub リポジトリ検索</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-xl font-bold">GitHub リポジトリ検索</h1>
+        <ThemeToggle />
+      </div>
       <SearchBox />
       <div className="mt-6">
         {!query ? (
