@@ -172,12 +172,12 @@ flowchart TD
 ### 2.4 ViewToggle（リスト/グリッド切替）
 
 - 役割: 一覧の表示形式を切替（要件 §3.2）。
-- 状態の置き場所: **URL `?view=list|grid`**（リロード・共有で再現。URL-as-stateと一貫）。既定はリスト（URLに載せない）。
-- **view の読み取りはクライアント**: `RepositoryList`（Client Component）が `useSearchParams` で直接読む。サーバー（SearchResults）は view を受け取らない。
-  - 理由: view は取得データに影響しない純粋な見た目の状態。サーバーで読むと view 変更のたびに検索フェッチの再実行を巻き込む。クライアントで読めば URL 同期（共有・リロード再現）を保ったまま、切替はクライアント内の再レンダリングだけで完結する。
-  - 線引き: **取得に影響するもの（q/sort/order/page）はサーバーが読み、見た目だけのもの（view）はクライアントが読む**。
-  - 不正値（`?view=evil` 等）は RepositoryList 内で list に落とす。
-- 補足: 表示形式の違いは**レイアウトのみ**。`RepositoryList` がコンテナのCSS（リスト/グリッド）を切替、`RepositoryCard` は表示専用でレイアウト非依存。
+- 状態の置き場所: **クライアント状態（useState）＋ localStorage 永続**（キー `repo-finder:view`）。テーマと同じ「個人の表示設定」の扱い。
+  - **当初は URL `?view=` に置いたが変更した**。判断基準を精緻化した結果: URL に載せるのは「共有・再現すべき結果の状態」（q/sort/order/page）であり、view は閲覧者個人の見え方の好みで共有対象ではない（テーマと同類）。リロード保持は localStorage で満たせる。
+  - 副次効果: view 変更がクライアント内で完結し、サーバーフェッチや URL 遷移を一切伴わない（切替が即時・アニメーションと確実に同期）。
+- 構成: `ResultsView`（client）が view の state と永続を一元管理し、`ViewToggle`（props in / callback out の純粋部品）と `RepositoryList` を束ねる。SortControl など URL 系の操作はサーバー側（SearchResults）に残り、**URL 系とローカル系の操作がコンポーネント構造上も分離**される。
+- SSR 整合: 初期レンダリングは常に list（サーバーは localStorage を知らないため）。マウント後に保存値を反映する。テーマと異なり一瞬 list が見えても実害がないため、ライブラリ級の FOUC 対策は不要と判断。
+- 補足: 表示形式の違いは**レイアウトのみ**。`RepositoryList` がコンテナのCSS（リスト/グリッド）を切替、`RepositoryCard` は表示専用でレイアウト非依存。出現アニメーション（floatIn stagger）は `key={view}` の再マウントで再生する。
 
 ### 2.5 ThemeToggle（ダーク/ライト切替）
 
@@ -318,11 +318,11 @@ type RepositoryDetail = Repository & {
 ### 4.4 状態の同期ルール（横断）
 
 | 状態 | 置き場所 | 操作時のpage |
-| --- | --- | --- |
+|---|---|---|
 | キーワード `q` | URL | 1にリセット |
 | ソート `sort`/`order` | URL | 1にリセット |
 | ページ `page` | URL | 変更 |
-| 表示形式 `view` | URL | 維持 |
+| 表示形式 `view` | **localStorage**（個人の表示設定・テーマと同類） | 影響なし |
 | テーマ | **localStorage** | 影響なし |
 
 - URL更新: 検索の確定は `router.push`、それ以外（sort/view/page）は `router.replace`。
