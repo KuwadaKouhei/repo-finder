@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { SearchBox } from "@/features/repository-search/components/search-box";
 import { SearchResults } from "@/features/repository-search/components/search-results";
+import { SearchSkeleton } from "@/features/repository-search/components/search-skeleton";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 type Props = {
@@ -29,12 +31,17 @@ export default async function SearchPage({ searchParams }: Props) {
             キーワードを入力してGitHubリポジトリを検索してください
           </p>
         ) : (
-          <SearchResults
-            query={query}
-            page={currentPage}
-            sort={sort}
-            order={order}
-          />
+          <Suspense
+            key={`${query}-${currentPage}-${sort ?? ""}-${order ?? ""}`}
+            fallback={<SearchSkeleton />}
+          >
+            <SearchResults
+              query={query}
+              page={currentPage}
+              sort={sort}
+              order={order}
+            />
+          </Suspense>
         )}
       </div>
     </main>

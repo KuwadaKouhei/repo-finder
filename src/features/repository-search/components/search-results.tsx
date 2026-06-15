@@ -2,6 +2,7 @@ import { searchRepositories } from "@/lib/github/client";
 import { ResultsView } from "./results-view";
 import { Pagination } from "./pagination";
 import { SortControl } from "./sort-control";
+import { EmptyState } from "./empty-state";
 
 const VALID_SORTS = ["stars", "forks", "updated"] as const;
 const VALID_ORDERS = ["asc", "desc"] as const;
@@ -29,6 +30,10 @@ export async function SearchResults({ query, page, sort, order }: Props) {
     sort: toValidSort(sort),
     order: toValidOrder(order),
   });
+
+  if (result.totalCount === 0) {
+    return <EmptyState query={query} />;
+  }
 
   return (
     <>

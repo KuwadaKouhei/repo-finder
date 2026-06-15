@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { SearchResults } from "./components/search-results";
+import { RateLimitError } from "@/lib/github/errors";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
@@ -40,10 +41,21 @@ describe("検索フロー（結合）", () => {
     expect(screen.getByText(/1\s*件/)).toBeInTheDocument();
   });
 
-  it("0件のとき件数 0 を表示する", async () => {
-    server.use(respondWith([]));
+  it("0件のとき空状態（EmptyState）を表示する", async () => {
+    server.use(respondWith([], 0));
     render(await SearchResults({ query: "zzz", page: 1 }));
-    expect(screen.getByText(/0\s*件/)).toBeInTheDocument();
+    expect(screen.getByText(/見つかりませんでした/)).toBeInTheDocument();
+  });
+
+  it("403（レート制限）のとき RateLimitError を投げる（error.tsx に委ねる）", async () => {
+    server.use(
+      http.get("https://api.github.com/search/repositories", () =>
+        HttpResponse.json({ message: "rate limit" }, { status: 403 })
+      )
+    );
+    await expect(SearchResults({ query: "react", page: 1 })).rejects.toBeInstanceOf(
+      RateLimitError
+    );
   });
 
   it("sort/order が検索APIのリクエストに反映される", async () => {
@@ -76,9 +88,7 @@ describe("検索フロー（結合）", () => {
     server.use(respondWith([rawRepo]));
     const user = userEvent.setup();
     render(await SearchResults({ query: "react", page: 1 }));
-
     await user.click(screen.getByRole("radio", { name: "グリッド表示" }));
-
     expect(screen.getByRole("list").className).toContain("grid");
     expect(localStorage.getItem("repo-finder:view")).toBe("grid");
   });
