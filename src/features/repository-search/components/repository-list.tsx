@@ -12,20 +12,20 @@ type Props = {
 export function RepositoryList({ repositories, view }: Props) {
   return (
     <ul
-      key={view}
       className={
         view === "grid"
-          ? "grid grid-cols-1 gap-3 sm:grid-cols-2"
-          : "flex flex-col gap-3"
+          ? "grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-[18px]"
+          : "flex flex-col gap-3.5"
       }
     >
       {repositories.map((repo, index) => (
         <li
           key={repo.id}
+          data-repo-id={repo.id}
           className="animate-float-in"
           style={{ "--stagger-index": index } as React.CSSProperties}
         >
-          <RepositoryCard repository={repo} />
+          <RepositoryCard repository={repo} view={view} />
         </li>
       ))}
     </ul>

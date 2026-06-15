@@ -17,9 +17,14 @@ describe("Pagination", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("現在ページと総ページ数を表示する", () => {
+  it("ページ番号ボタンを表示し、現在ページに aria-current が付く", () => {
     render(<Pagination currentPage={2} totalCount={300} />);
-    expect(screen.getByText("2 / 10")).toBeInTheDocument();
+    // 300件 = 10ページ。末尾(10)と現在(2)が出る
+    expect(screen.getByRole("button", { name: "10" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "2" })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
   });
 
   it("1ページ目では「前へ」が無効", () => {
@@ -34,7 +39,8 @@ describe("Pagination", () => {
 
   it("総件数が1000を超えても34ページにクランプする", () => {
     render(<Pagination currentPage={1} totalCount={500000} />);
-    expect(screen.getByText("1 / 34")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "34" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "35" })).not.toBeInTheDocument();
   });
 
   it("「次へ」で page を進めた URL に置き換える（q は保持）", async () => {

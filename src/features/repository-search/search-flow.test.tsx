@@ -25,7 +25,7 @@ const rawRepo = {
   html_url: "https://github.com/facebook/react",
   description: "desc", language: "JavaScript",
   stargazers_count: 100, watchers_count: 100, subscribers_count: 5,
-  forks_count: 3, open_issues_count: 4,
+  forks_count: 3, open_issues_count: 4, topics: ["ui"],
 };
 
 const respondWith = (items: object[], total = items.length) =>
@@ -37,14 +37,16 @@ describe("検索フロー（結合）", () => {
   it("検索すると一覧が表示される（API→アダプタ→描画が繋がる）", async () => {
     server.use(respondWith([rawRepo]));
     render(await SearchResults({ query: "react", page: 1 }));
-    expect(screen.getByText("facebook/react")).toBeInTheDocument();
-    expect(screen.getByText(/1\s*件/)).toBeInTheDocument();
+    expect(screen.getByText("react")).toBeInTheDocument();
+    // 件数（CountUp）とラベルを確認
+    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText(/件のリポジトリ/)).toBeInTheDocument();
   });
 
   it("0件のとき空状態（EmptyState）を表示する", async () => {
     server.use(respondWith([], 0));
     render(await SearchResults({ query: "zzz", page: 1 }));
-    expect(screen.getByText(/見つかりませんでした/)).toBeInTheDocument();
+    expect(screen.getByText(/存在しません/)).toBeInTheDocument();
   });
 
   it("403（レート制限）のとき RateLimitError を投げる（error.tsx に委ねる）", async () => {

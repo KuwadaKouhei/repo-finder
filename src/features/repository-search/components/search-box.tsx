@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 
 export function SearchBox() {
   const router = useRouter();
@@ -25,35 +24,41 @@ export function SearchBox() {
     });
   };
 
-  const handleClear = () => {
-    setValue("");
-  };
-
   return (
-    <form onSubmit={handleSubmit} role="search" className="flex gap-2">
-      <div className="relative flex-1">
-        <Input
+    <form onSubmit={handleSubmit} role="search" className="flex w-full gap-3">
+      <div className="relative flex flex-1 items-center rounded-xl border-[1.5px] border-border bg-card pl-[18px] shadow-[var(--shadow-card)] transition-all duration-300 focus-within:border-primary focus-within:shadow-[0_0_0_4px_var(--brand-ring),var(--shadow-card-md)]">
+        <Search
+          aria-hidden
+          className="size-5 shrink-0 text-muted-foreground"
+        />
+        <input
           type="search"
           name="q"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="リポジトリを検索"
+          placeholder="リポジトリ名を入力してください"
           aria-label="リポジトリを検索"
+          className="flex-1 bg-transparent px-3.5 py-4 text-base text-foreground outline-none placeholder:text-muted-foreground"
         />
         {value && (
           <button
             type="button"
-            onClick={handleClear}
+            onClick={() => setValue("")}
             aria-label="入力をクリア"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="mr-3 grid size-[26px] shrink-0 place-items-center rounded-full bg-muted text-base text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             ×
           </button>
         )}
       </div>
-      <Button type="submit" disabled={isPending}>
+      <button
+        type="submit"
+        disabled={isPending}
+        className="inline-flex h-[58px] shrink-0 items-center gap-2 rounded-xl bg-primary px-[26px] text-base font-semibold text-primary-foreground shadow-[var(--shadow-card)] transition-[transform,filter] duration-200 ease-[var(--ease-spring)] hover:brightness-[1.07] active:scale-[0.96] disabled:opacity-60"
+      >
+        <Search aria-hidden className="size-[18px]" />
         {isPending ? "検索中…" : "検索"}
-      </Button>
+      </button>
     </form>
   );
 }

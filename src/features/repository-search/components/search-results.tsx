@@ -1,7 +1,5 @@
 import { searchRepositories } from "@/lib/github/client";
 import { ResultsView } from "./results-view";
-import { Pagination } from "./pagination";
-import { SortControl } from "./sort-control";
 import { EmptyState } from "./empty-state";
 
 const VALID_SORTS = ["stars", "forks", "updated"] as const;
@@ -36,15 +34,10 @@ export async function SearchResults({ query, page, sort, order }: Props) {
   }
 
   return (
-    <>
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">
-          {result.totalCount.toLocaleString()} 件
-        </p>
-        <SortControl />
-      </div>
-      <ResultsView repositories={result.items} totalCount={result.totalCount} />
-      <Pagination currentPage={page} totalCount={result.totalCount} />
-    </>
+    <ResultsView
+      repositories={result.items}
+      totalCount={result.totalCount}
+      currentPage={page}
+    />
   );
 }

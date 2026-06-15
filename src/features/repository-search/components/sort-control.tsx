@@ -41,7 +41,10 @@ export function SortControl() {
 
   return (
     <Select value={current} onValueChange={handleChange} disabled={isPending}>
-      <SelectTrigger className="w-36" aria-label="並び替え">
+      <SelectTrigger
+        className="h-[42px] w-36 gap-2 rounded-md border-border bg-card font-semibold shadow-[var(--shadow-card)]"
+        aria-label="並び替え"
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
