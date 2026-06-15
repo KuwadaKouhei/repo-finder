@@ -5,28 +5,27 @@
 GitHubの公開リポジトリをキーワードで検索し、一覧・詳細を閲覧できるWebアプリケーション。
 Next.js 16（App Router）/ React 19 / TypeScript で実装。
 
-<!-- TODO: 課題の出典・デプロイURL（あれば）を1行 -->
-
 ---
 
 ## セットアップ・起動方法
 
 ```bash
 # 前提: Node.js 22 LTS（最低 20.9+）/ npm
- 
+
 # 1. 依存のインストール
 npm install
- 
+
 # 2. 環境変数の設定（GitHubトークン）
 #    .env.example をコピーして GITHUB_TOKEN を設定
 #    ※ トークン未設定でも動作するが、レート制限が厳しくなる（検索 10req/分）
 cp .env.example .env.local
- 
+
 # 3. 開発サーバー起動
 npm run dev
- 
+
 # テスト実行
-npm test
+npm test          # ユニット・コンポーネント・結合（Vitest）
+npm run test:e2e  # E2E（Playwright）
 ```
 
 ### GitHub アクセストークンの取得方法
@@ -45,8 +44,6 @@ npm test
 > Fine-grained tokens でも動作するが、本アプリは公開情報のみのため classic の無スコープで十分。
 > トークンは `.env.local`（gitignore 済み）にのみ置き、コミットしないこと。
 
-<!-- TODO: scaffold後、実際のコマンド・envキー名と一致しているか確認して確定 -->
-
 ---
 
 ## 技術スタック
@@ -57,7 +54,8 @@ npm test
 | 言語 / ランタイム | TypeScript 5.x / React 19.2 / Node.js 22 LTS |
 | スタイリング / UI | Tailwind CSS 4.x / shadcn/ui |
 | テーマ | next-themes（ダーク/ライト） |
-| テスト | Vitest / React Testing Library / MSW |
+| テスト | Vitest / React Testing Library / MSW / Playwright |
+| CI | GitHub Actions（lint・型チェック・テスト） |
 
 選定理由・不採用技術・バージョン方針の詳細: [docs/TECH_STACK.md](./docs/TECH_STACK.md)
 
@@ -65,45 +63,43 @@ npm test
 
 ## 設計判断とトレードオフ
 
-<!-- このプロジェクトの心臓部。実装中に判断が固まるたびに追記する。各項目は「何を・なぜ・代替案」の形で簡潔に。 -->
-
 ### データ取得は Server Components（サーバーフェッチ）
-<!-- TODO: トークン秘匿・初期JS削減・Next16ネイティブ。代替案: クライアント + TanStack Query（無限スクロール/ミューテーション主体なら）。 -->
+
+GitHub API の取得を RSC でサーバー側に置く。トークンをクライアントに晒さず、初期 JS を削減でき、Next 16 のネイティブな構成に沿う。代替案のクライアント取得＋データ取得ライブラリ（TanStack Query 等）は、無限スクロールやミューテーション主体なら有力だが、本アプリは読み取り・ページネーション主体のため採らない。
 
 ### URL を状態の単一の真実とする
-<!-- TODO: q/sort/order/page/view をURLに同期。共有・リロード・戻るで再現。例外: テーマは個人設定のため localStorage。 -->
+
+検索キーワード・ソート・ページ（q/sort/order/page）を URL に同期し、共有・リロード・ブラウザバックで画面が再現される。例外として、テーマと表示形式（リスト/グリッド）は閲覧者個人の表示設定で共有対象でないため localStorage に置く。「共有・再現すべき結果の状態か、個人の見た目の好みか」で置き場所を分けている。
 
 ### Watcher数の罠への対応
-<!-- TODO: watchers_count はStar数のエイリアス。真のWatcher数 subscribers_count は詳細エンドポイントで取得するため、詳細ページは /repos/{owner}/{repo} を再取得。 -->
+
+GitHub の `watchers_count` は実際には Star 数のエイリアスで、真の Watcher 数は `subscribers_count`。これは検索結果に含まれないため、詳細ページは検索結果を使い回さず `GET /repos/{owner}/{repo}` を再取得する。詳細が一覧に依存しない自己完結ページになる利点もある。
 
 ### アンチコラプションレイヤ（アダプタ）
-<!-- TODO: GitHub生レスポンスをドメイン型に変換し、API変更の影響を lib/github に局所化。 -->
+
+GitHub の生レスポンスを、アダプタ層でアプリ独自のドメイン型に変換する。Watcher 数の罠や URL スキーム検証もここで吸収し、API の癖や将来の変更の影響を `lib/github` に局所化する。UI はドメイン型だけを見る。
 
 ### 並び替えはサーバーソート（API委譲）
-<!-- TODO: 検索は最大1000件・ページング前提のため、クライアントソートは「現在ページ内だけ」になり誤り。名前順がAPIに無いため不採用にした判断も。 -->
+
+検索は最大 1000 件・ページング前提のため、クライアントソートは「現在ページ内 30 件だけの並べ替え」になり誤り。ソートは API に委譲する。モックにあった名前順・Issue 数順は GitHub API の sort に存在しない/意味が異なるため不採用とした。
 
 ### 検索は submit 方式
-<!-- TODO: ボタン/Enterで確定。レート制限（認証あり30req/分）に優しく、意図的な検索操作として自然。 -->
 
-設計の全体像: [docs/DESIGN_PHILOSOPHY.md](./docs/DESIGN_PHILOSOPHY.md) / 各設計書は「ドキュメント一覧」参照
+検索はボタンまたは Enter で確定する。逐次（input ごとの）検索はレート制限（認証あり 30req/分）に厳しく、意図しないリクエストを生む。確定操作としての submit が、レート制限にもユーザーの意図にも自然。
+
+設計の全体像: [docs/Philosophy/DESIGN_PHILOSOPHY.md](./docs/Philosophy/DESIGN_PHILOSOPHY.md) / 各設計書は「ドキュメント一覧」参照
 
 ---
 
 ## やらないこと（スコープ外）と理由
 
-<!-- 「盛らない判断」を見せる章。理由つきで明記する。 -->
-
 - **認証ログイン** — 検索・閲覧が主目的のため不要
 - **無限スクロール** — 「戻る」の位置復元とSSRの相性で複雑性が跳ね上がる。GitHub APIの1000件上限・ページネーションと噛み合うため、ページネーションを採用
 - **グローバル状態管理（Redux等）** — サーバー状態=RSC / 共有状態=URL / ローカル状態=useState・localStorage で充足。導入理由がない
 
-<!-- TODO: 実装中に「見送った判断」が増えたらここに追記 -->
-
 ---
 
 ## 使った Next.js の機能
-
-<!-- Next自走力を示す章。実装したら該当項目を確定させる。 -->
 
 - App Router / Server Components（データ取得・初期JS最小化）
 - `searchParams` / `params` の await（Next 16 の Promise 化に対応）
@@ -111,14 +107,15 @@ npm test
 - 動的ルート `repositories/[owner]/[repo]`
 - `generateMetadata`（リポジトリごとの動的メタデータ）
 - `next/image`（アバター最適化）
-- キャッシュ方針 <!-- TODO: use cache / cacheLife を使った・使わなかった判断を記載 -->
+- キャッシュ方針: 永続キャッシュ（`revalidate` 等）は設けず毎回最新を取得。Star/Watcher 数など表示データが変動するため。詳細ページのみ `React.cache` で同一リクエスト内の取得（generateMetadata とページ本体）を重複排除
 
 ---
 
 ## テスト
 
 ```bash
-npm test
+npm test          # ユニット・コンポーネント・結合（Vitest）
+npm run test:e2e  # E2E（Playwright）
 ```
 
 方針の要約:
@@ -128,9 +125,20 @@ npm test
 - **振る舞いをテスト**: role / label / text で検証し、実装詳細に依存しない
 - **MSWで境界モック**: ネットワーク境界のみモックし、内側は本物を動かす
 - **アダプタはテストファースト**: APIとUIの契約を先にテストで固定
-詳細: [docs/TEST_PHILOSOPHY.md](./docs/TEST_PHILOSOPHY.md)
 
-<!-- TODO: 実装後、テスト構成（単体/結合の本数・対象）を一覧で追記 -->
+### テスト構成
+
+| 層 | ツール | 対象 |
+| --- | --- | --- |
+| 静的解析 | TypeScript（strict）/ ESLint | 全体 |
+| ① ユニット | Vitest | アダプタ・フォーマット・APIクライアント・言語色 |
+| ② コンポーネント | Vitest / RTL | カード・検索ボックス・ソート・表示切替・ページネーション・テーマ・詳細・空状態 |
+| ③ 結合 | Vitest / RTL / MSW | 検索フロー・詳細フロー（Watcher 数の罠の検証を含む） |
+| ④ E2E | Playwright | 検索→一覧→詳細→戻る（ハッピーパス・chromium） |
+
+Vitest（①②③）と E2E（④）はランナーを分離（`npm test` / `npm run test:e2e`）。Vitest は計 62 本、E2E は 1 本。
+
+詳細: [docs/Philosophy/TEST_PHILOSOPHY.md](./docs/Philosophy/TEST_PHILOSOPHY.md)
 
 ---
 
@@ -140,8 +148,6 @@ npm test
 
 **判断は人間、実行（調査・文書化・生成）はAI、出力のレビューと採否の決定は人間。**
 
-<!-- TODO: 既存READMEのAI利用ポイントの記述をここに統合 -->
-
 ### 工程ごとの分担
 
 | 工程 | AIの役割 | 人間の役割 | 人間がレビュー・修正した点 |
@@ -149,15 +155,19 @@ npm test
 | 要件定義 | ドキュメント作成・要件の提案・整理 | 要件の提案・トレードオフの判断 | ドキュメント内容のレビュー |
 | 設計（基本/詳細） | ドキュメント作成・設計の壁打ち・設計の提案 | 設計思想の決定・設計壁打ち・設計の判断 | ドキュメント内容のレビュー |
 | API仕様調査 | 調査 | 内容のレビュー | なし |
-| 実装 | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
-| テスト | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
-| ドキュメント | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
+| 実装 | コード生成・実装方針の提案・エラーの原因特定 | 実装方針の決定・コードレビュー・動作確認・採否判断 | view の状態管理方式（URL→localStorage）、フォーカスリングの視認性、戻る挙動の不具合など、提案や初期実装を実機確認のうえ修正 |
+| テスト | テストコード生成・テスト観点の提案・失敗原因の解析 | テスト戦略の決定・テスト範囲の判断 | jsdom 環境差（matchMedia 等）への対応、E2E のモック方針（RSC のため実 API 使用）の判断 |
+| ドキュメント | ドキュメント作成・構成提案・判断の言語化 | 記載内容の決定・事実確認 | 設計判断の経緯・トレードオフの記述をレビューし反映 |
 
 ### AIの提案を却下・修正した例
 
-<!-- AIを制御している証跡として最も効く部分。具体例を1〜2個。候補: -->
-<!-- ・モックのソート項目（名前順・Issue数順）はGitHub APIのsortに存在しない/意味が異なるため不採用とし、API準拠の4項目に修正した -->
-<!-- ・UI構成の提案を、本課題の規模・変更の局所化の観点から見直し、機能軸＋コロケーションに決定した -->
+- **表示形式（リスト/グリッド）の状態管理を URL から localStorage に変更**: AI は当初「画面状態は URL に」という原則を機械的に適用し view を URL クエリに置いたが、view は閲覧者個人の表示の好み（テーマと同類）で共有・再現の対象ではないと判断し、localStorage 方式に変更させた。判断基準を「共有・再現すべき結果の状態（q/sort/page）か、個人の見た目の好みか」に精緻化した。
+
+- **ソートの選択肢を GitHub API 準拠に修正**: モックにあった「名前順」「Issue 数順」は GitHub Search API の sort に存在しない/意味が異なるため不採用とし、API 準拠の4項目（関連度/Star/Fork/更新日時）に修正した。
+
+- **「検索に戻る」ボタンの不具合を修正**: AI の初期実装は document.referrer で内部遷移を判定していたが、Next の SPA ナビゲーションで referrer が設定されず、正常な動線でも常にトップへ戻る不具合があった。実機確認で発見し、history.length による判定に修正。既知の限界（外部直リンク流入時の挙動）も含めてドキュメント化した。
+
+- **フォーカスリングの視認性**: デザイン適用で独自スタイルにしたボタンがフォーカスリングを失っていた点、および primary 背景ボタンで青リングが同化して見えない点を実機の a11y 点検で発見し、ring-offset の付与で修正した。
 
 ---
 
