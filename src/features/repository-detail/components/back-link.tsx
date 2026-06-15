@@ -6,12 +6,9 @@ export function BackLink() {
   const router = useRouter();
 
   const handleClick = () => {
-    // 同一オリジン内の遷移履歴があればそこへ戻る（検索条件・ページ・スクロール位置が復元される）
-    // 直アクセス等で履歴がない場合はトップへ
-    if (
-      window.history.length > 1 &&
-      document.referrer.startsWith(window.location.origin)
-    ) {
+    // 履歴が2件以上あれば直前のページ（検索結果）へ戻る。
+    // 直アクセス（新規タブ等）で履歴がなければトップへ。
+    if (window.history.length > 1) {
       router.back();
     } else {
       router.push("/");
