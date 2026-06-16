@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -69,8 +70,10 @@ export function ThemeToggle() {
   };
 
   return (
-    <button
+    <Button
       type="button"
+      variant="none"
+      size="none"
       onClick={handleToggle}
       aria-label={isDark ? "ライトモードに切り替え" : "ダークモードに切り替え"}
       title={isDark ? "ライトモード" : "ダークモード"}
@@ -82,6 +85,6 @@ export function ThemeToggle() {
       >
         {isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
       </span>
-    </button>
+    </Button>
   );
 }
