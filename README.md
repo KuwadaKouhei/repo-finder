@@ -1,5 +1,31 @@
 # Repo Finder（GitHub リポジトリ検索アプリ）
 
+![CI](https://github.com/KuwadaKouhei/repo-finder/actions/workflows/ci.yml/badge.svg)
+
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?logo=playwright&logoColor=white)
+
+## スクリーンショット
+
+### 初期画面
+
+![初期画面（ライトモード）](./docs/images/home-light.png)
+![初期画面（ダークモード）](./docs/images/home-dark.png)
+
+### 検索画面
+
+![検索画面（ライトモード）](./docs/images/search-light.png)
+![検索画面（ダークモード）](./docs/images/search-dark.png)
+
+### 詳細画面
+
+![詳細画面（ライトモード）](./docs/images/detail-light.png)
+![詳細画面（ダークモード）](./docs/images/detail-dark.png)
+
 <!-- TODO: 完成時にスクリーンショットを置く（ライト/ダーク両方） -->
 
 GitHubの公開リポジトリをキーワードで検索し、一覧・詳細を閲覧できるWebアプリケーション。
