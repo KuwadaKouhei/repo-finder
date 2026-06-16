@@ -21,7 +21,7 @@ export function BackLink() {
       type="button"
       onClick={handleClick}
       aria-label="前のページに戻る"
-      className="inline-flex items-center gap-2.5 rounded-md border border-border bg-card py-2.5 pr-4 pl-3 text-[13.5px] font-semibold text-foreground shadow-[var(--shadow-card)] transition-[transform,border-color] duration-200 ease-[var(--ease-spring)] hover:-translate-x-[3px] hover:border-[var(--brand-ring)]"
+      className="inline-flex cursor-pointer items-center gap-2.5 rounded-md border border-border bg-card py-2.5 pr-4 pl-3 text-[13.5px] font-semibold text-foreground shadow-[var(--shadow-card)] transition-[transform,border-color] duration-200 ease-[var(--ease-spring)] hover:-translate-x-[3px] hover:border-[var(--brand-ring)]"
     >
       <ArrowLeft aria-hidden className="size-4" />
       戻る

@@ -45,7 +45,7 @@ export function SearchBox() {
             type="button"
             onClick={() => setValue("")}
             aria-label="入力をクリア"
-            className="mr-3 grid size-[26px] shrink-0 place-items-center rounded-full bg-muted text-base text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="mr-3 grid size-[26px] shrink-0 cursor-pointer place-items-center rounded-full bg-muted text-base text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             ×
           </button>
@@ -54,7 +54,7 @@ export function SearchBox() {
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex h-[58px] shrink-0 items-center gap-2 rounded-xl bg-primary px-[26px] text-base font-semibold text-primary-foreground shadow-[var(--shadow-card)] transition-[transform,filter] duration-200 ease-[var(--ease-spring)] hover:brightness-[1.07] active:scale-[0.96] disabled:opacity-60 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="inline-flex h-[58px] shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-primary px-[26px] text-base font-semibold text-primary-foreground shadow-[var(--shadow-card)] transition-[transform,filter] duration-200 ease-[var(--ease-spring)] hover:brightness-[1.07] active:scale-[0.96] disabled:cursor-default disabled:opacity-60 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <Search aria-hidden className="size-[18px]" />
         {isPending ? "検索中…" : "検索"}
