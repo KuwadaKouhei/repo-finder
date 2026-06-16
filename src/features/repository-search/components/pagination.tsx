@@ -40,7 +40,7 @@ function buildPageItems(current: number, total: number): (number | "gap")[] {
 }
 
 const pillBase =
-  "grid h-[42px] min-w-[42px] place-items-center rounded-md border px-1.5 font-mono text-sm font-bold transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40";
+  "grid h-[42px] min-w-[42px] cursor-pointer place-items-center rounded-md border px-1.5 font-mono text-sm font-bold transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40";
 const pillInactive =
   "border-border bg-card text-foreground shadow-[var(--shadow-card)] hover:-translate-y-px hover:border-border-strong hover:bg-muted";
 const pillActive =

@@ -74,7 +74,7 @@ export function ThemeToggle() {
       onClick={handleToggle}
       aria-label={isDark ? "ライトモードに切り替え" : "ダークモードに切り替え"}
       title={isDark ? "ライトモード" : "ダークモード"}
-      className="grid size-10 place-items-center overflow-hidden rounded-md border border-border bg-card text-foreground shadow-[var(--shadow-card)] transition-colors hover:border-border-strong hover:bg-muted"
+      className="grid size-10 cursor-pointer place-items-center overflow-hidden rounded-md border border-border bg-card text-foreground shadow-[var(--shadow-card)] transition-colors hover:border-border-strong hover:bg-muted"
     >
       <span
         className="grid place-items-center transition-transform duration-[450ms] ease-[var(--ease-spring)]"
