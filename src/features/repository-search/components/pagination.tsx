@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const PER_PAGE = 30;
 const MAX_RESULTS = 1000; // GitHub Search API の取得上限
@@ -76,15 +77,17 @@ export function Pagination({
       aria-label={label}
       className={`flex items-center justify-center gap-2 ${className ?? "mt-[38px]"}`}
     >
-      <button
+      <Button
         type="button"
+        variant="none"
+        size="none"
         aria-label="前へ"
         onClick={() => goTo(currentPage - 1)}
         disabled={currentPage <= 1 || isPending}
         className={`${pillBase} ${pillInactive}`}
       >
         <ArrowLeft className="size-4" />
-      </button>
+      </Button>
 
       {items.map((item, i) =>
         item === "gap" ? (
@@ -96,28 +99,32 @@ export function Pagination({
             …
           </span>
         ) : (
-          <button
+          <Button
             key={item}
             type="button"
+            variant="none"
+            size="none"
             onClick={() => goTo(item)}
             disabled={isPending}
             aria-current={item === currentPage ? "page" : undefined}
             className={`${pillBase} ${item === currentPage ? pillActive : pillInactive}`}
           >
             {item}
-          </button>
+          </Button>
         )
       )}
 
-      <button
+      <Button
         type="button"
+        variant="none"
+        size="none"
         aria-label="次へ"
         onClick={() => goTo(currentPage + 1)}
         disabled={currentPage >= totalPages || isPending}
         className={`${pillBase} ${pillInactive}`}
       >
         <ArrowLeft className="size-4 rotate-180" />
-      </button>
+      </Button>
     </nav>
   );
 }

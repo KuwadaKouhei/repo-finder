@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   error: Error;
@@ -17,13 +18,15 @@ export default function Error({ reset }: Props) {
       <p className="text-sm text-muted-foreground">
         時間をおいて再試行してください。連続して検索した場合は、APIの利用制限に達している可能性があります。
       </p>
-      <button
+      <Button
         type="button"
+        variant="none"
+        size="none"
         onClick={reset}
-        className="mt-2 inline-flex h-11 items-center rounded-lg border border-border bg-card px-6 text-sm font-semibold text-foreground shadow-[var(--shadow-card)] transition-colors hover:border-border-strong hover:bg-muted"
+        className="mt-2 inline-flex h-11 cursor-pointer items-center rounded-lg border border-border bg-card px-6 text-sm font-semibold text-foreground shadow-[var(--shadow-card)] transition-colors hover:border-border-strong hover:bg-muted"
       >
         再試行
-      </button>
+      </Button>
     </main>
   );
 }
