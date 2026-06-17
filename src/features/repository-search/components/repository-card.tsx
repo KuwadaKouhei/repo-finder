@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   Star,
   GitFork,
@@ -10,6 +9,7 @@ import type { Repository } from "@/domain/repository";
 import { formatCompact } from "@/lib/format";
 import { LanguageDot } from "@/components/language-dot";
 import { RepoAvatar } from "@/components/repo-avatar";
+import { RepoCardLink } from "./repo-card-link";
 import type { View } from "./results-view";
 
 type Props = { repository: Repository; view?: View };
@@ -43,7 +43,7 @@ export function RepositoryCard({ repository, view = "list" }: Props) {
 
   if (grid) {
     return (
-      <Link href={href} className={`${cardBase} flex flex-col gap-4 rounded-2xl p-[22px]`}>
+      <RepoCardLink href={href} className={`${cardBase} flex flex-col gap-4 rounded-2xl p-[22px]`}>
         <span aria-hidden className="card-border-sweep" />
         <div className="flex items-center gap-3">
           <RepoAvatar owner={repository.owner} url={repository.ownerAvatarUrl} size={46} />
@@ -78,12 +78,12 @@ export function RepositoryCard({ repository, view = "list" }: Props) {
             <MetaStat icon={GitFork} value={repository.forks} label="Fork" />
           </div>
         </div>
-      </Link>
+      </RepoCardLink>
     );
   }
 
   return (
-    <Link
+    <RepoCardLink
       href={href}
       className={`${cardBase} flex items-center gap-[18px] rounded-xl px-[22px] py-[18px]`}
     >
@@ -116,6 +116,6 @@ export function RepositoryCard({ repository, view = "list" }: Props) {
       <span className="ml-auto hidden self-center text-[var(--brand-strong)] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 sm:inline-flex">
         <ExternalLinkIcon aria-hidden className="size-[18px]" />
       </span>
-    </Link>
+    </RepoCardLink>
   );
 }
