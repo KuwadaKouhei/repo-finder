@@ -97,7 +97,7 @@
 
 - Pagination（?page= 更新・1000件上限クランプ・他クエリ保持）（要件 §3.2）
 
-### 14.5 テスト前倒し：①残り＋②＋③骨格 [ ]
+### 14.5 テスト前倒し：①残り＋②＋③骨格 [x]
 
 - ①: format のユニットテスト
 - ②: RepositoryCard / Pagination / SearchBox のコンポーネントテスト
@@ -105,56 +105,56 @@
 - ブランチ: test/component-and-integration
 - 以後、機能実装のたびに②③へ追記する運用（TEST_PHILOSOPHY.md §1）
 
-### 15. 検索画面：並び替え [ ]
+### 15. 検索画面：並び替え [x]
 
 - SortControl（shadcn Select・関連度/Star/Fork/更新日時・?sort=&order=・変更時 page=1）（要件 §3.1）
 - サーバーソート（API委譲）
 - テスト追記: ③ソート統合（sort/order反映・pageリセット）
 
-### 16. 検索画面：リスト/グリッド切替 [ ]
+### 16. 検索画面：リスト/グリッド切替 [x]
 
 - ViewToggle（shadcn ToggleGroup・?view=list|grid・既定list）
 - RepositoryList のレイアウト切替（カードは非依存）（要件 §3.2）
 - テスト追記: ③view切替（URL同期・レイアウト反映）
 
-### 17. テーマ切替（ダーク/ライトモード） [ ]
+### 17. テーマ切替（ダーク/ライトモード） [x]
 
 - ThemeProvider（next-themes ラッパ）を app/layout.tsx に設置
 - ThemeToggle（components/theme・システム追従・localStorage 永続・FOUC対策）（要件 §3.5）
 - ライト/ダーク双方のコントラスト確認（要件 §4.4）
 
-### 18. 詳細画面 [ ]
+### 18. 詳細画面 [x]
 
 - app/repositories/[owner]/[repo]/page.tsx（RSC・GET /repos/{owner}/{repo} 再取得）
 - RepositoryDetail / StatBadge×4（Watcherは subscribers_count）
 - ExternalLink（html_url・rel="noopener noreferrer"）（要件 §3.3）
 - テスト追記: ②詳細系コンポーネント・③詳細描画（7項目・外部リンク）
 
-### 19. 状態表示（4状態＋初期＋404） [ ]
+### 19. 状態表示（4状態＋初期＋404） [x]
 
 - loading.tsx（スケルトン）/ error.tsx（再試行）/ EmptyState（0件）/ 初期表示
 - 詳細の not-found.tsx + notFound()（要件 §3.4）
 
-### 19.5 デザイン適用 [ ]
+### 19.5 デザイン適用  [x]
 
 - DESIGN_TOKENS.md §7 の手順で実施（globals.css のテーマ変数上書き → フォント → Header → 各コンポーネント装飾 → アニメーション）
 - shadcn/Tailwind の流儀で実装（モックのインラインstyleは移植しない）
 - reduced-motion 対応
 - ブランチ: feat/design-tokens
 
-### 20. テスト総仕上げ [ ]
+### 20. テスト総仕上げ [x]
 
 - 14.5以降の積み残し確認・抜けの補完（ソート統合・詳細描画・view切替が揃っているか）
 - ④E2E（任意）: Playwright でハッピーパス1本（検索→結果→詳細→7項目）
 - （要件 §3.6 / TEST_PHILOSOPHY.md §1）
 
-### 21. 非機能・仕上げ [ ]
+### 21. 非機能・仕上げ [x]
 
 - アクセシビリティ（ラベル・alt・キーボード・フォーカス可視）（要件 §4.4）
 - next/image 最適化・数値compact表記・キャッシュ方針（要件 §4.1）
 - generateMetadata（加点・任意）
 
-### 22. CI・ドキュメント仕上げ [ ]
+### 22. CI・ドキュメント仕上げ [x]
 
 - GitHub Actions（lint / typecheck / test）（要件: プロダクション想定）
 - README 完成（設計判断・やらないこと・使ったNext機能・AI利用レポート）
@@ -197,6 +197,6 @@ flowchart TD
 | --- | --- | --- | --- |
 | MS1 設計完了 | 1〜7 | **完了** | ドキュメント一式が揃い、実装前の判断が確定 |
 | MS2 動く最小 | 8〜12 | **完了** | キーワードで検索し一覧が出る |
-| MS3 検索機能完成 | 13〜17 + 14.5 | **進行中**（13・14 完了 ← ★次は 14.5） | URL同期・ページング・ソート・表示切替・テーマが動き、テストに守られている |
-| MS4 詳細・状態完成 | 18〜19.5 | 未着手 | 詳細表示・全状態・デザイン適用が揃う |
-| MS5 品質担保 | 20〜22 | 未着手 | テスト総仕上げ・非機能・CI・READMEが揃い提出可能 |
+| MS3 検索機能完成 | 13〜17 + 14.5 | **完了** | URL同期・ページング・ソート・表示切替・テーマが動き、テストに守られている |
+| MS4 詳細・状態完成 | 18〜19.5 | **完了** | 詳細表示・全状態・デザイン適用が揃う |
+| MS5 品質担保 | 20〜22 | **完了** | テスト総仕上げ・非機能・CI・READMEが揃い提出可能 |
