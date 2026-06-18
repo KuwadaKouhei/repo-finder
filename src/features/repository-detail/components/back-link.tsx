@@ -3,18 +3,20 @@
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { hasNavigatedInApp } from "@/lib/in-app-navigation";
 
 export function BackLink() {
   const router = useRouter();
 
+  // 一覧から遷移して来た場合のみ戻るボタンを表示する。直アクセス・リロード・外部流入は
+  // フルロードでフラグが立たないため非表示（戻り先が無いため）。ホームへはヘッダーロゴで戻れる。
+  if (!hasNavigatedInApp()) {
+    return null;
+  }
+
   const handleClick = () => {
-    // 履歴が2件以上あれば直前のページ（検索結果）へ戻る。
-    // 直アクセス（新規タブ等）で履歴がなければトップへ。
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push("/");
-    }
+    // 一覧から来ているので、直前のページ（前の検索一覧）へ戻る。
+    router.back();
   };
 
   return (
